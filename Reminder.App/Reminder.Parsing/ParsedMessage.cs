@@ -16,5 +16,7 @@ namespace Reminder.Parsing
 		/// Gets or sets the message of the reminder item for sending to the recipient.
 		/// </summary>
 		public string Message { get; set; }
+
+		public static string DefaultMessage => "Что-то";
 	}
 }

@@ -10,7 +10,7 @@ namespace Reminder.Storage.Core
 		/// <summary>
 		/// Gets the identifier.
 		/// </summary>
-		public Guid Id { get; } = Guid.NewGuid();
+		public Guid Id { get; set; } = Guid.NewGuid();
 
 		/// <summary>
 		/// Gets or sets the date and time the reminder item scheduled for sending.

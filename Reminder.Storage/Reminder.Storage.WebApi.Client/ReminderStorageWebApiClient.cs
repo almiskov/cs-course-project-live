@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Linq;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+
 
 namespace Reminder.Storage.WebApi.Client
 {
@@ -20,67 +22,51 @@ namespace Reminder.Storage.WebApi.Client
 			_httpClient = HttpClientFactory.Create();
 		}
 
-		public void Add(ReminderItem reminder)
+		public Guid Add(ReminderItemRestricted reminder)
 		{
-			string method = "POST";
-			string relativeUrl = "/api/reminders";
-			string content = JsonConvert.SerializeObject(
-				new ReminderItemCreateModel(reminder));
-
-			HttpRequestMessage request = new HttpRequestMessage(
-				new HttpMethod(method),
-				_baseWebApiUrl + relativeUrl);
-
-			request.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
-			request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("*/*"));
-
-			var result = _httpClient.SendAsync(request).Result;
+			var result = CallWebApi(
+				"POST",
+				"/api/reminders",
+				JsonConvert.SerializeObject(new ReminderItemCreateModel(reminder)));
 
 			if (result.StatusCode != System.Net.HttpStatusCode.Created)
 			{
-				throw new Exception(
-					$"Error: {result.StatusCode}. " +
-					$"Content: {result.Content.ReadAsStringAsync().Result}");
+				throw CreateException(result);
 			}
+
+			string content = result.Content.ReadAsStringAsync().Result;
+
+			return JsonConvert.DeserializeObject<ReminderItemGetModel>(content).Id;
 		}
 
 		public ReminderItem Get(Guid id)
 		{
-			string method = "GET";
-			string relativeUrl = $"/api/reminders/{id}";
+			var result = CallWebApi(
+				"GET",
+				$"/api/reminders/{id}");
 
-			HttpRequestMessage request = new HttpRequestMessage(
-				new HttpMethod(method),
-				_baseWebApiUrl + relativeUrl);
-
-			var result = _httpClient.SendAsync(request).Result;
+			if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+			{
+				return null;
+			}
 
 			if (result.StatusCode != System.Net.HttpStatusCode.OK)
 			{
-				throw new Exception(
-					$"Error: {result.StatusCode}. " +
-					$"Content: {result.Content.ReadAsStringAsync().Result}");
+				throw CreateException(result);
 			}
 
-			string stringJsonResult = result.Content.ReadAsStringAsync().Result;
+			string content = result.Content.ReadAsStringAsync().Result;
 
-			var gotReminder = JsonConvert.DeserializeObject<ReminderItemGetModel>(stringJsonResult);
-
-			var reminderItem = gotReminder.ToReminderItem();
+			var reminderItem = JsonConvert.DeserializeObject<ReminderItemGetModel>(content).ToReminderItem();
 
 			return reminderItem;
 		}
 
 		public List<ReminderItem> Get(ReminderItemStatus status)
 		{
-			string method = "GET";
-			string relativeUrl = $"/api/reminders/?status={status}";
-
-			HttpRequestMessage request = new HttpRequestMessage(
-				new HttpMethod(method),
-				_baseWebApiUrl + relativeUrl);
-
-			var result = _httpClient.SendAsync(request).Result;
+			var result = CallWebApi(
+				"GET",
+				$"/api/reminders?[filter]status={(int)status}");
 
 			if (result.StatusCode != System.Net.HttpStatusCode.OK)
 			{
@@ -102,34 +88,85 @@ namespace Reminder.Storage.WebApi.Client
 
 		public void UpdateStatus(IEnumerable<Guid> ids, ReminderItemStatus status)
 		{
+			var patchDocument = new JsonPatchDocument<ReminderItemUpdateModel>(
+				new List<Operation<ReminderItemUpdateModel>>
+				{
+					new Operation<ReminderItemUpdateModel>
+					{
+						op = "replace",
+						path = "/status",
+						value = (int)status
+					}
+				},
+				new Newtonsoft.Json.Serialization.DefaultContractResolver());
 
+			var model = new ReminderItemsUpdateModel()
+			{
+				Ids = ids.ToList(),
+				PatchDocument = patchDocument
+			};
+
+			var content = JsonConvert.SerializeObject(model);
+
+			var result = CallWebApi(
+				"PATCH",
+				$"/api/reminders",
+				content);
+
+			if (result.StatusCode != System.Net.HttpStatusCode.NoContent)
+			{
+				throw CreateException(result);
+			}
 		}
 
 		public void UpdateStatus(Guid id, ReminderItemStatus status)
 		{
-			string method = "PATCH";
-			string relativeUrl = $"/api/reminders/{id}";
+			var patchDocument = new JsonPatchDocument<ReminderItemUpdateModel>(
+				new List<Operation<ReminderItemUpdateModel>>
+				{
+					new Operation<ReminderItemUpdateModel>
+					{
+						op = "replace",
+						path = "/status",
+						value = (int)status
+					}
+				},
+				new Newtonsoft.Json.Serialization.DefaultContractResolver());
 
-			var patchDoc = new JsonPatchDocument<ReminderItemPatchModel>();
-			patchDoc.Replace(r => r.Status, status);
+			var content = JsonConvert.SerializeObject(patchDocument);
 
-			string content = JsonConvert.SerializeObject(patchDoc);
+			var result = CallWebApi(
+				"PATCH",
+				$"/api/reminders/{id}",
+				content);
 
+			if (result.StatusCode != System.Net.HttpStatusCode.NoContent)
+			{
+				throw CreateException(result);
+			}
+		}
+
+		private HttpResponseMessage CallWebApi(string method, string relativeUrl, string content = null)
+		{
 			HttpRequestMessage request = new HttpRequestMessage(
 				new HttpMethod(method),
 				_baseWebApiUrl + relativeUrl);
 
-			request.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
-			request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("*/*"));
+			request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
-			var result = _httpClient.SendAsync(request).Result;
-
-			if (result.StatusCode != System.Net.HttpStatusCode.NoContent)
+			if (method == "POST" || method == "PATCH" || method == "PUT")
 			{
-				throw new Exception(
-					$"Error: {result.StatusCode}. " +
-					$"Content: {result.Content.ReadAsStringAsync().Result}");
+				request.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
 			}
+
+			return _httpClient.SendAsync(request).Result;
+		}
+
+		private Exception CreateException(HttpResponseMessage httpResponseMessage)
+		{
+			throw new Exception(
+				$"Error: {httpResponseMessage.StatusCode}. " +
+				$"Content: {httpResponseMessage.Content.ReadAsStringAsync().Result}");
 		}
 	}
 }

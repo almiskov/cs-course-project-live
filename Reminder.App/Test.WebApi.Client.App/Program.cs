@@ -8,19 +8,28 @@ namespace Test.WebApi.Client.App
 	{
 		static void Main(string[] args)
 		{
-			var client = new ReminderStorageWebApiClient("http://localhost:50933");
+			var client = new ReminderStorageWebApiClient("https://localhost:5001");
 
-			for(int i = 0; i < 10; i++)
+			var reminderItem = new ReminderItemRestricted()
 			{
-				var reminderItem = new ReminderItem()
-				{
-					Date = DateTimeOffset.Now,
-					ContactId = "TestContactId",
-					Message = "TestMessage"
-				};
+				Date = DateTimeOffset.Now,
+				ContactId = "TestContactId",
+				Message = "TestMessage"
+			};
 
-				client.Add(reminderItem);
-			}
+			// где-то здесь в методе Add в storage id присываивается не тот, который нужен
+			var id = client.Add(reminderItem);
+
+			Console.WriteLine("Adding done");
+
+			var reminderItemFromStorage = client.Get(id);
+
+			Console.WriteLine($"Reading done:\n" +
+				$"{reminderItemFromStorage.Id}\n" +
+				$"{reminderItemFromStorage.Date}\n" +
+				$"{reminderItemFromStorage.ContactId}\n" +
+				$"{reminderItemFromStorage.Message}\n");
+			
 		}
 	}
 }

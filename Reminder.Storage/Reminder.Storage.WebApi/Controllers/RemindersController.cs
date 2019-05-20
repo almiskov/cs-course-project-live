@@ -48,40 +48,88 @@ namespace Reminder.Storage.WebApi.Controllers
 		public IActionResult CreateReminder([FromBody] ReminderItemCreateModel reminder)
 		{
 			if (reminder == null || !ModelState.IsValid)
+			{
 				return BadRequest(ModelState);
+			}
 
-			var reminderItem = reminder.ToReminderItem();
-
-			_reminderStorage.Add(reminderItem);
+			var reminderItem = reminder.ToReminderItemRestricted();
+			Guid id = _reminderStorage.Add(reminderItem); // вот тут есть подозрение на то, что где-то подменяется айди
 
 			return CreatedAtRoute(
 				"GetReminder",
-				new { id = reminderItem.Id },
-				new ReminderItemGetModel(reminderItem));
+				new { id },
+				new ReminderItemGetModel(id, reminderItem));
 		}
 
-		[HttpPatch("{id}")]
-		public IActionResult UpdateStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemPatchModel> patch)
+		[HttpPatch]
+		public IActionResult UpdateReminderStatus([FromBody]ReminderItemsUpdateModel remindersItemsUpdateModel)
 		{
-			if(patch == null)
+			if (remindersItemsUpdateModel == null || !ModelState.IsValid)
 			{
-				return BadRequest();
+				return BadRequest(ModelState);
 			}
 
-			var reminderToPatch =_reminderStorage.Get(id);
+			var remindersItemModelToPatch = new ReminderItemUpdateModel();
+			remindersItemsUpdateModel.PatchDocument.ApplyTo(remindersItemModelToPatch);
 
-			if(reminderToPatch == null)
-			{
-				return BadRequest();
-			}
-
-			var patchModel = new ReminderItemPatchModel();
-
-			patch.ApplyTo(patchModel);
-
-			reminderToPatch.Status = patchModel.Status;
+			_reminderStorage.UpdateStatus(
+				remindersItemsUpdateModel.Ids,
+				remindersItemModelToPatch.Status);
 
 			return NoContent();
 		}
+
+		[HttpPatch("id")]
+		public IActionResult UpdateReminderStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemUpdateModel> patchDocument)
+		{
+			var reminderItem = _reminderStorage.Get(id);
+
+			if(reminderItem == null)
+			{
+				return BadRequest();
+			}
+
+			if (patchDocument == null || !ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			var remindersItemModelToPatch = new ReminderItemUpdateModel()
+			{
+				Status = reminderItem.Status
+			};
+
+			patchDocument.ApplyTo(remindersItemModelToPatch);
+
+			_reminderStorage.UpdateStatus(
+				id,
+				remindersItemModelToPatch.Status);
+
+			return NoContent();
+		}
+
+		//[HttpPatch("{id}")]
+		//public IActionResult UpdateStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemsUpdateModel> patch)
+		//{
+		//	if(patch == null)
+		//	{
+		//		return BadRequest();
+		//	}
+
+		//	var reminderToPatch =_reminderStorage.Get(id);
+
+		//	if(reminderToPatch == null)
+		//	{
+		//		return BadRequest();
+		//	}
+
+		//	var patchModel = new ReminderItemsUpdateModel();
+
+		//	patch.ApplyTo(patchModel);
+
+		//	//reminderToPatch.Status = patchModel.Status;
+
+		//	return NoContent();
+		//}
 	}
 }

@@ -7,6 +7,7 @@ using Reminder.Domain.EventArgs;
 using Reminder.Storage.InMemory;
 using Reminder.Receiver.Telegram;
 using Reminder.Sender.Telegram;
+using Reminder.Storage.WebApi.Client;
 
 namespace Reminder.App
 {
@@ -28,7 +29,8 @@ namespace Reminder.App
 
 			// create objects for DI
 
-			var reminderStorage = new InMemoryReminderStorage();
+			//var reminderStorage = new InMemoryReminderStorage();
+			var reminderStorage = new ReminderStorageWebApiClient("http://localhost:50933");
 
 			IWebProxy telegramProxy = null;
 			if (telegramBotUseProxy)
@@ -60,6 +62,7 @@ namespace Reminder.App
 				$"Reminder application is running...\n" +
 				$"{hello}\n" +
 				"Press [Enter] to shutdown.");
+
 			Console.ReadLine();
 		}
 

@@ -8,7 +8,7 @@ namespace Test.WebApi.Client.App
 	{
 		static void Main(string[] args)
 		{
-			var client = new ReminderStorageWebApiClient("https://localhost:5001");
+			var client = new ReminderStorageWebApiClient("http://localhost:50933");
 
 			for(int i = 0; i < 10; i++)
 			{

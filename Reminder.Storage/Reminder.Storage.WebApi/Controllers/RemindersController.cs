@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Reminder.Storage.Core;
 using Reminder.Storage.WebApi.Core;
@@ -39,10 +40,9 @@ namespace Reminder.Storage.WebApi.Controllers
 				.Get(status)
 				.Select(x => new ReminderItemGetModel(x))
 				.ToList();
-			
+
 			return Ok(remindersItemGetModels);
 		}
-
 
 		[HttpPost]
 		public IActionResult CreateReminder([FromBody] ReminderItemCreateModel reminder)
@@ -60,6 +60,28 @@ namespace Reminder.Storage.WebApi.Controllers
 				new ReminderItemGetModel(reminderItem));
 		}
 
+		[HttpPatch("{id}")]
+		public IActionResult UpdateStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemPatchModel> patch)
+		{
+			if(patch == null)
+			{
+				return BadRequest();
+			}
 
+			var reminderToPatch =_reminderStorage.Get(id);
+
+			if(reminderToPatch == null)
+			{
+				return BadRequest();
+			}
+
+			var patchModel = new ReminderItemPatchModel();
+
+			patch.ApplyTo(patchModel);
+
+			reminderToPatch.Status = patchModel.Status;
+
+			return NoContent();
+		}
 	}
 }

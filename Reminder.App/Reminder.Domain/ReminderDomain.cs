@@ -80,6 +80,12 @@ namespace Reminder.Domain
 			object sender,
 			MessageReceivedEventArgs e)
 		{
+			if(e.Message.ToLower() == "help")
+			{
+				_sender.Send(e.ContactId, MessageParser.GetHelpMessage());
+				return;
+			}
+
 			var parsedMessage = MessageParser.Parse(e.Message);
 			if (parsedMessage != null)
 			{
@@ -100,6 +106,15 @@ namespace Reminder.Domain
 							reminder.ContactId,
 							reminder.Message,
 							reminder.Date)));
+			}
+			else
+			{
+				_sender.Send(
+					e.ContactId,
+					"Не понимаю =(");
+				_sender.Send(
+					e.ContactId,
+					"Для помощи введите help");
 			}
 		}
 

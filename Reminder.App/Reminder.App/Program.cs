@@ -30,7 +30,7 @@ namespace Reminder.App
 			// create objects for DI
 
 			//var reminderStorage = new InMemoryReminderStorage();
-			var reminderStorage = new ReminderStorageWebApiClient("https://localhost:5001");
+			var reminderStorage = new ReminderStorageWebApiClient("http://localhost:50933");
 
 			IWebProxy telegramProxy = null;
 			if (telegramBotUseProxy)

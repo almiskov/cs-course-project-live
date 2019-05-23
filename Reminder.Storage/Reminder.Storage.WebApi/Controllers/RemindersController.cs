@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Reminder.Storage.Core;
@@ -18,6 +16,23 @@ namespace Reminder.Storage.WebApi.Controllers
 		public RemindersController(IReminderStorage reminderStorage)
 		{
 			_reminderStorage = reminderStorage;
+		}
+
+		[HttpPost]
+		public IActionResult CreateReminder([FromBody] ReminderItemCreateModel reminder)
+		{
+			if (reminder == null || !ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			var reminderItem = reminder.ToReminderItemRestricted();
+			Guid id = _reminderStorage.Add(reminderItem);
+
+			return CreatedAtRoute(
+				"GetReminder",
+				new { id },
+				new ReminderItemGetModel(id, reminderItem));
 		}
 
 		[HttpGet("{id}", Name = "GetReminder")]
@@ -44,42 +59,25 @@ namespace Reminder.Storage.WebApi.Controllers
 			return Ok(remindersItemGetModels);
 		}
 
-		[HttpPost]
-		public IActionResult CreateReminder([FromBody] ReminderItemCreateModel reminder)
-		{
-			if (reminder == null || !ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
-
-			var reminderItem = reminder.ToReminderItemRestricted();
-			Guid id = _reminderStorage.Add(reminderItem); // вот тут есть подозрение на то, что где-то подменяется айди
-
-			return CreatedAtRoute(
-				"GetReminder",
-				new { id },
-				new ReminderItemGetModel(id, reminderItem));
-		}
-
 		[HttpPatch]
-		public IActionResult UpdateReminderStatus([FromBody]ReminderItemsUpdateModel remindersItemsUpdateModel)
+		public IActionResult UpdateRemindersStatus([FromBody]ReminderItemsUpdateModel reminderItemsUpdateModel)
 		{
-			if (remindersItemsUpdateModel == null || !ModelState.IsValid)
+			if (reminderItemsUpdateModel == null || !ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
 			}
 
-			var remindersItemModelToPatch = new ReminderItemUpdateModel();
-			remindersItemsUpdateModel.PatchDocument.ApplyTo(remindersItemModelToPatch);
+			var reminderItemModelToPatch = new ReminderItemUpdateModel();
+			reminderItemsUpdateModel.PatchDocument.ApplyTo(reminderItemModelToPatch);
 
 			_reminderStorage.UpdateStatus(
-				remindersItemsUpdateModel.Ids,
-				remindersItemModelToPatch.Status);
+				reminderItemsUpdateModel.Ids,
+				reminderItemModelToPatch.Status);
 
 			return NoContent();
 		}
 
-		[HttpPatch("id")]
+		[HttpPatch("{id}")]
 		public IActionResult UpdateReminderStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemUpdateModel> patchDocument)
 		{
 			var reminderItem = _reminderStorage.Get(id);
@@ -94,42 +92,18 @@ namespace Reminder.Storage.WebApi.Controllers
 				return BadRequest(ModelState);
 			}
 
-			var remindersItemModelToPatch = new ReminderItemUpdateModel()
-			{
-				Status = reminderItem.Status
-			};
+			var reminderItemModelToPatch = new ReminderItemUpdateModel();
+			//{
+			//	Status = reminderItem.Status
+			//};
 
-			patchDocument.ApplyTo(remindersItemModelToPatch);
+			patchDocument.ApplyTo(reminderItemModelToPatch);
 
 			_reminderStorage.UpdateStatus(
 				id,
-				remindersItemModelToPatch.Status);
+				reminderItemModelToPatch.Status);
 
 			return NoContent();
 		}
-
-		//[HttpPatch("{id}")]
-		//public IActionResult UpdateStatus(Guid id, [FromBody]JsonPatchDocument<ReminderItemsUpdateModel> patch)
-		//{
-		//	if(patch == null)
-		//	{
-		//		return BadRequest();
-		//	}
-
-		//	var reminderToPatch =_reminderStorage.Get(id);
-
-		//	if(reminderToPatch == null)
-		//	{
-		//		return BadRequest();
-		//	}
-
-		//	var patchModel = new ReminderItemsUpdateModel();
-
-		//	patch.ApplyTo(patchModel);
-
-		//	//reminderToPatch.Status = patchModel.Status;
-
-		//	return NoContent();
-		//}
 	}
 }

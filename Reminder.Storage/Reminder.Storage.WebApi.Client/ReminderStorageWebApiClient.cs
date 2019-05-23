@@ -164,7 +164,7 @@ namespace Reminder.Storage.WebApi.Client
 
 		private Exception CreateException(HttpResponseMessage httpResponseMessage)
 		{
-			throw new Exception(
+			return new Exception(
 				$"Error: {httpResponseMessage.StatusCode}. " +
 				$"Content: {httpResponseMessage.Content.ReadAsStringAsync().Result}");
 		}

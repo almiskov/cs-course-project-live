@@ -21,7 +21,7 @@
 		Sent = 2,
 
 		/// <summary>
-		/// Something goes wrong while sending attempt.
+		/// Something went wrong while sending attempt.
 		/// </summary>
 		Failed = 3
 	}

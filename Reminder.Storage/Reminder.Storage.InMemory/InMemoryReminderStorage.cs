@@ -100,7 +100,7 @@ namespace Reminder.Storage.InMemory
 		}
 
 		/// <summary>
-		/// Gets the list of the items by status with pagination.
+		/// Gets the list of the items by statu
 		/// </summary>
 		public List<ReminderItem> Get(ReminderItemStatus status)
 		{

@@ -8,7 +8,7 @@ namespace Reminder.Storage.WebApi.Core
 		/// <summary>
 		/// Gets the identifier.
 		/// </summary>
-		public Guid Id { get; } // = Guid.NewGuid(); // ВОТ ТУТ ПО ХОДУ НЕ НУЖЕН АЙДИ
+		public Guid Id { get; set; }
 
 		/// <summary>
 		/// Gets or sets the date and time the reminder item scheduled for sending.

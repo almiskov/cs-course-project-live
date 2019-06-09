@@ -99,6 +99,8 @@ namespace Reminder.Domain
 
 				_storage.Add(reminder);
 
+				_sender.Send(e.ContactId, "Ок, напомню");
+
 				AddingSuccedded?.Invoke(
 					this,
 					new AddingSuccededEventArgs(

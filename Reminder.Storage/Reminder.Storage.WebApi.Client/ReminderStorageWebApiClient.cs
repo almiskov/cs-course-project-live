@@ -22,6 +22,20 @@ namespace Reminder.Storage.WebApi.Client
 			_httpClient = HttpClientFactory.Create();
 		}
 
+		public int Count
+		{
+			get
+			{
+				var result = CallWebApi(
+					"HEAD",
+					"/api/reminders");
+
+				int count = Convert.ToInt32(result.Headers.GetValues("X-Total-Count"));
+
+				return count;
+			}
+		}
+
 		public Guid Add(ReminderItemRestricted reminder)
 		{
 			var result = CallWebApi(
@@ -37,6 +51,13 @@ namespace Reminder.Storage.WebApi.Client
 			string content = result.Content.ReadAsStringAsync().Result;
 
 			return JsonConvert.DeserializeObject<ReminderItemGetModel>(content).Id;
+		}
+
+		public void Clear()
+		{
+			var result = CallWebApi(
+				"DELETE",
+				"/api/reminders");
 		}
 
 		public ReminderItem Get(Guid id)
@@ -70,9 +91,7 @@ namespace Reminder.Storage.WebApi.Client
 
 			if (result.StatusCode != System.Net.HttpStatusCode.OK)
 			{
-				throw new Exception(
-					$"Error: {result.StatusCode}. " +
-					$"Content: {result.Content.ReadAsStringAsync().Result}");
+				throw CreateException(result);
 			}
 
 			string stringJsonResult = result.Content.ReadAsStringAsync().Result;
@@ -84,6 +103,38 @@ namespace Reminder.Storage.WebApi.Client
 									.ToList();
 
 			return reminderItems;
+		}
+
+		public List<ReminderItem> Get(int count = 0, int startPosition = 0)
+		{
+			var result = CallWebApi(
+				"GET",
+				$"/api/reminders?[pagination]count={count}&[pagination]startPosition={startPosition}");
+
+			if(result.StatusCode != System.Net.HttpStatusCode.OK)
+			{
+				throw CreateException(result);
+			}
+
+			var reminderItemGetModels = 
+				JsonConvert.DeserializeObject<List<ReminderItemGetModel>>
+					(result.Content.ReadAsStringAsync().Result);
+
+			var reminderItems = reminderItemGetModels
+				.Select(r => r.ToReminderItem())
+				.ToList();
+
+			return reminderItems;
+		}
+
+		public List<ReminderItem> Get(ReminderItemStatus status, int count, int startPosition)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool Remove(Guid id)
+		{
+			throw new NotImplementedException();
 		}
 
 		public void UpdateStatus(IEnumerable<Guid> ids, ReminderItemStatus status)

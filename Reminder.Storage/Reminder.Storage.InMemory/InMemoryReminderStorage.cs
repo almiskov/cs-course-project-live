@@ -73,10 +73,10 @@ namespace Reminder.Storage.InMemory
 		/// <summary>
 		/// Gets the list of the items with pagination.
 		/// </summary>
-		public List<ReminderItem> Get(int count = 0, int startPostion = 0)
+		public List<ReminderItem> Get(int count = 0, int startPosition = 0)
 		{
 			var reminders = Reminders.Values
-				.Skip(startPostion);
+				.Skip(startPosition);
 
 			if (count != 0)
 				reminders = reminders.Take(count);

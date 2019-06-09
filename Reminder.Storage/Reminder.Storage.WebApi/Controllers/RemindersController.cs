@@ -18,6 +18,24 @@ namespace Reminder.Storage.WebApi.Controllers
 			_reminderStorage = reminderStorage;
 		}
 
+		[HttpHead]
+		public IActionResult GetCount()
+		{
+			string countAsString = _reminderStorage.Count.ToString();
+
+			Response.Headers.Add("X-Total-Count", countAsString);
+
+			return Ok();
+		}
+
+		[HttpDelete]
+		public IActionResult ClearStorage()
+		{
+			_reminderStorage.Clear();
+
+			return Ok();
+		}
+
 		[HttpPost]
 		public IActionResult CreateReminder([FromBody] ReminderItemCreateModel reminder)
 		{
@@ -48,8 +66,8 @@ namespace Reminder.Storage.WebApi.Controllers
 
 		[HttpGet]
 		public IActionResult GetReminders(
-			[FromQuery(Name = "[filter]status")]
-			ReminderItemStatus status)
+			[FromQuery(Name = "[filter]status")] ReminderItemStatus status
+			)
 		{
 			var remindersItemGetModels = _reminderStorage
 				.Get(status)
@@ -58,6 +76,18 @@ namespace Reminder.Storage.WebApi.Controllers
 
 			return Ok(remindersItemGetModels);
 		}
+
+		//[HttpGet]
+		//public IActionResult GetRemindersWithJustPagination(
+		//	[FromQuery(Name = "[pagination]count")] int count = 0,
+		//	[FromQuery(Name = "[pagination]startPosition")] int startPosition = 0)
+		//{
+		//	var reminderItemGetModels = _reminderStorage
+		//		.Get(count, startPosition)
+		//		.Select(r => new ReminderItemGetModel(r));
+
+		//	return Ok(reminderItemGetModels);
+		//}
 
 		[HttpPatch]
 		public IActionResult UpdateRemindersStatus([FromBody]ReminderItemsUpdateModel reminderItemsUpdateModel)

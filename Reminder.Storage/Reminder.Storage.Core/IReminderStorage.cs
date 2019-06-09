@@ -11,7 +11,7 @@ namespace Reminder.Storage.Core
 		/// <summary>
 		/// Gets the number of the items in the storage.
 		/// </summary>
-		//int Count { get; }
+		int Count { get; }
 
 		/// <summary>
 		/// Adds a new item to the storage.
@@ -21,12 +21,12 @@ namespace Reminder.Storage.Core
 		/// <summary>
 		/// Removes the item from the storage by its ID.
 		/// </summary>
-		//bool Remove(Guid id);
+		bool Remove(Guid id);
 
 		/// <summary>
 		/// Clears the storage.
 		/// </summary>
-		//void Clear();
+		void Clear();
 
 		/// <summary>
 		/// Gets the single item by its ID.
@@ -36,12 +36,12 @@ namespace Reminder.Storage.Core
 		/// <summary>
 		/// Gets the list of the items with pagination.
 		/// </summary>
-		//List<ReminderItem> Get(int count = 0, int startPostion = 0);
+		List<ReminderItem> Get(int count = 0, int startPosition = 0);
 
 		/// <summary>
 		/// Gets the list of items by status with pagination.
 		/// </summary>
-		//List<ReminderItem> Get(ReminderItemStatus status, int count, int startPostion);
+		List<ReminderItem> Get(ReminderItemStatus status, int count, int startPosition);
 
 		/// <summary>
 		/// Gets the list of items by status with pagination.

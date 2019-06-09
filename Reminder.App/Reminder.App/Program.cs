@@ -26,16 +26,20 @@ namespace Reminder.App
 			var telegramBotUseProxy = bool.Parse(config["telegramBot.UseProxy"]);
 			var telegramBotProxyHost = config["telegramBot.Proxy.Host"];
 			var telegramBotProxyPort = int.Parse(config["telegramBot.Proxy.Port"]);
+			var telegramBotProxyLogin = config["telegramBot.Proxy.Login"];
+			var telegramBotProxyPassword = config["telegramBot.Proxy.Password"];
 
 			// create objects for DI
-
-			//var reminderStorage = new InMemoryReminderStorage();
-			var reminderStorage = new ReminderStorageWebApiClient("http://localhost:50933");
+			var reminderStorage = new ReminderStorageWebApiClient(storageWebApiUrl);
 
 			IWebProxy telegramProxy = null;
 			if (telegramBotUseProxy)
 			{
-				telegramProxy = new HttpToSocks5Proxy(telegramBotProxyHost, telegramBotProxyPort);
+				telegramProxy = new HttpToSocks5Proxy(
+										telegramBotProxyHost,
+										telegramBotProxyPort,
+										telegramBotProxyLogin,
+										telegramBotProxyPassword);
 			}
 
 			var reminderReceiver = new TelegramReminderReceiver(telegramBotApiToken, telegramProxy);

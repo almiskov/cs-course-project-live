@@ -1,0 +1,1 @@
+dotnet Reminder.App\Reminder.App\bin\Debug\netcoreapp2.2\Reminder.App.dll

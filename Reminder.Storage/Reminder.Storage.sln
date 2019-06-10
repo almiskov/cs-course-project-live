@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.106
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.InMemory", "Reminder.Storage.InMemory\Reminder.Storage.InMemory.csproj", "{619B2C40-F465-4AE0-8BA6-59DEDE9919E7}"
 EndProject
@@ -13,13 +13,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.Core.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.WebApi", "Reminder.Storage.WebApi\Reminder.Storage.WebApi.csproj", "{F09FFF3E-5132-43B7-9376-EE9EDE73AA59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reminder.Storage.WebApi.Client", "Reminder.Storage.WebApi.Client\Reminder.Storage.WebApi.Client.csproj", "{FE44E4A5-65B3-4250-8956-7BB8D51BC69D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.WebApi.Client", "Reminder.Storage.WebApi.Client\Reminder.Storage.WebApi.Client.csproj", "{FE44E4A5-65B3-4250-8956-7BB8D51BC69D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.WebApi.Core", "Reminder.Storage.WebApi.Core\Reminder.Storage.WebApi.Core.csproj", "{9539EAFA-BE7F-4043-B83A-B8723F908CA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reminder.Storage.DbStorage", "Reminder.Storage.DbStorage\Reminder.Storage.DbStorage.csproj", "{119C80DD-1A0B-44C2-847B-91608BD588CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reminder.Storage.DbStorage", "Reminder.Storage.DbStorage\Reminder.Storage.DbStorage.csproj", "{119C80DD-1A0B-44C2-847B-91608BD588CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{A20ECC0D-E115-4A23-B827-D55B1BB1B714}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reminder.Storage.SqlServer.ADO", "Reminder.Storage.SqlServer.ADO\Reminder.Storage.SqlServer.ADO.csproj", "{E69453A7-3E35-4608-A521-2B231BD9B8AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reminder.Storage.SqlServer.ADO.Tests", "Reminder.Storage.SqlServer.ADO.Tests\Reminder.Storage.SqlServer.ADO.Tests.csproj", "{3D2DA8DF-A958-4279-A197-0C500429F6C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +61,14 @@ Global
 		{119C80DD-1A0B-44C2-847B-91608BD588CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{119C80DD-1A0B-44C2-847B-91608BD588CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{119C80DD-1A0B-44C2-847B-91608BD588CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A20ECC0D-E115-4A23-B827-D55B1BB1B714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A20ECC0D-E115-4A23-B827-D55B1BB1B714}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A20ECC0D-E115-4A23-B827-D55B1BB1B714}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A20ECC0D-E115-4A23-B827-D55B1BB1B714}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E69453A7-3E35-4608-A521-2B231BD9B8AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E69453A7-3E35-4608-A521-2B231BD9B8AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E69453A7-3E35-4608-A521-2B231BD9B8AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E69453A7-3E35-4608-A521-2B231BD9B8AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D2DA8DF-A958-4279-A197-0C500429F6C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D2DA8DF-A958-4279-A197-0C500429F6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D2DA8DF-A958-4279-A197-0C500429F6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D2DA8DF-A958-4279-A197-0C500429F6C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

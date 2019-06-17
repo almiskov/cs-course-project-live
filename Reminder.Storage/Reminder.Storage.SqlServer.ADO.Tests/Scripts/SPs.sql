@@ -40,3 +40,43 @@ AS BEGIN
 	SET @reminderId = @tempReminderId
 END
 GO
+
+DROP PROCEDURE IF EXISTS dbo.GetReminderItemById
+GO
+CREATE PROCEDURE dbo.GetReminderItemById (
+	@reminderId AS UNIQUEIDENTIFIER
+)
+AS BEGIN
+	SELECT r.Id, r.ContactId, r.TargetDate, r.[Message], r.StatusId
+	FROM dbo.ReminderItem r
+	WHERE r.Id = @reminderId
+END
+GO
+
+DROP PROCEDURE IF EXISTS dbo.GetReminderItemByStatus
+GO
+CREATE PROCEDURE dbo.GetReminderItemByStatus (
+	@statusId AS TINYINT
+)
+AS BEGIN
+	SELECT r.Id, r.ContactId, r.[Message], r.TargetDate
+	FROM dbo.ReminderItem r
+	WHERE r.StatusId = @statusId
+END
+GO
+
+DROP PROCEDURE IF EXISTS dbo.UpdateReminderItemStatusById
+GO
+CREATE PROCEDURE dbo.UpdateReminderItemStatusById (
+	@id AS UNIQUEIDENTIFIER,
+	@statusId AS TINYINT
+)
+AS BEGIN
+	UPDATE dbo.ReminderItem
+	SET
+		StatusId = @statusId,
+		UpdatedDate = SYSDATETIMEOFFSET()
+	WHERE Id = @id
+END
+GO
+

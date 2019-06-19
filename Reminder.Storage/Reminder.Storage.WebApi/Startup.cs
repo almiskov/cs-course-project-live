@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Reminder.Storage.Core;
 using Reminder.Storage.InMemory;
 using Reminder.Storage.DbStorage;
+using Reminder.Storage.SqlServer.ADO;
+using System;
 
 namespace Reminder.Storage.WebApi
 {
@@ -23,12 +25,20 @@ namespace Reminder.Storage.WebApi
 		{
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			//services.AddSingleton<IReminderStorage>(new InMemoryReminderStorage());
-			services.AddSingleton<IReminderStorage>(new DataBaseReminderStorage());
-		}
+            //services.AddSingleton<IReminderStorage>(new InMemoryReminderStorage());
+            //services.AddSingleton<IReminderStorage>(new DataBaseReminderStorage());
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+            string connectionString = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build()
+                .GetConnectionString("DefaultConnection");
+
+            services.AddSingleton<IReminderStorage>(new SqlReminderStorage(connectionString));
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
 			if (env.IsDevelopment())
 			{

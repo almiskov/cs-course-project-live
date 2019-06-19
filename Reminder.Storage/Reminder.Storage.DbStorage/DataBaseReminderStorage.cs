@@ -8,7 +8,7 @@ namespace Reminder.Storage.DbStorage
 	public class DataBaseReminderStorage : IReminderStorage
 	{
 		private const string _connectionString =
-			"Data Source=ALMISKOV;" +
+            @"Data Source=localhost\SQLEXPRESS;" +
 			"Initial Catalog=RemindersDB;" +
 			"Integrated Security=true;";
 

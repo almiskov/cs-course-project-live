@@ -14,7 +14,20 @@ namespace Reminder.Storage.SqlServer.ADO
         {
             _connectionString = connectionString;
         }
-        public int Count => throw new NotImplementedException();
+        public int Count
+        {
+            get
+            {
+                using (var connection = GetOpenedSqlConnection())
+                {
+                    var command = connection.CreateCommand();
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "dbo.GetReminderItemsCount";
+
+                    return (int)command.ExecuteScalar();
+                }
+            }
+        }
 
         public Guid Add(ReminderItemRestricted reminder)
         {
@@ -124,7 +137,16 @@ namespace Reminder.Storage.SqlServer.ADO
 
         public bool Remove(Guid id)
         {
-            throw new NotImplementedException();
+            using (var connection = GetOpenedSqlConnection())
+            {
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "dbo.RemoveReminderById";
+
+                command.Parameters.AddWithValue("@id", id);
+
+                return (bool)command.ExecuteScalar();
+            }
         }
 
         public void UpdateStatus(IEnumerable<Guid> ids, ReminderItemStatus status)
@@ -132,17 +154,38 @@ namespace Reminder.Storage.SqlServer.ADO
             using (var connection = GetOpenedSqlConnection())
             {
                 var command = connection.CreateCommand();
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "dbo.UpdateReminderItemStatusById";
+                command.CommandType = CommandType.Text;
+                command.CommandText = "CREATE TABLE #ReminderItem (Id UNIQUEIDENTIFIER NOT NULL)";
+                command.ExecuteNonQuery();
 
-                command.Parameters.AddWithValue("@statusId", status);
-
-                foreach(var id in ids)
+                using(SqlBulkCopy copy = new SqlBulkCopy(connection))
                 {
-                    command.Parameters.AddWithValue("@id", id);
-                    command.ExecuteNonQuery();
-                    command.Parameters.RemoveAt("@id");
+                    copy.BatchSize = 1000;
+                    copy.DestinationTableName = "#ReminderItem";
+
+                    DataTable tempTable = new DataTable("#ReminderItem");
+                    tempTable.Columns.Add("Id", typeof(Guid));
+
+                    foreach(Guid id in ids)
+                    {
+                        DataRow row = tempTable.NewRow();
+                        row["Id"] = id;
+                        tempTable.Rows.Add(row);
+                    }
+
+                    copy.WriteToServer(tempTable);
                 }
+
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "dbo.UpdateReminderItemsBulk";
+
+                command.Parameters.AddWithValue("@statusId", (byte)status);
+
+                command.ExecuteNonQuery();
+
+                command.CommandType = CommandType.Text;
+                command.CommandText = "DROP TABLE #ReminderItem";
+                command.ExecuteNonQuery();
             }
         }
 

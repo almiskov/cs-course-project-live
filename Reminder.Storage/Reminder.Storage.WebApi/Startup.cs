@@ -32,9 +32,9 @@ namespace Reminder.Storage.WebApi
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build()
-                .GetConnectionString("DefaultConnection");
+                .GetConnectionString("MyTestConnection");
 
-            services.AddSingleton<IReminderStorage>(new SqlReminderStorage(connectionString));
+            services.AddSingleton<IReminderStorage>(new DataBaseReminderStorage(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

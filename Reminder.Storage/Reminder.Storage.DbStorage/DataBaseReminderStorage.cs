@@ -7,10 +7,7 @@ namespace Reminder.Storage.DbStorage
 {
 	public class DataBaseReminderStorage : IReminderStorage
 	{
-		private const string _connectionString =
-            @"Data Source=localhost\SQLEXPRESS;" +
-			"Initial Catalog=RemindersDB;" +
-			"Integrated Security=true;";
+		private readonly string _connectionString;
 
 		public int Count
 		{
@@ -34,6 +31,11 @@ namespace Reminder.Storage.DbStorage
 					return count;
 				}
 			}
+		}
+
+		public DataBaseReminderStorage(string connectionString)
+		{
+			_connectionString = connectionString;
 		}
 
 		public Guid Add(ReminderItemRestricted reminder)

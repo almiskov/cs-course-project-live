@@ -1,7 +1,6 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reminder.Storage.SqlServer.ADO.Tests.Properties;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using Reminder.Storage.SqlServer.ADO.Tests.Properties;
 
 namespace Reminder.Storage.SqlServer.ADO.Tests
 {
